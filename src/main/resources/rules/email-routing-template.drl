@@ -1,0 +1,19 @@
+template header
+id
+ifcondition
+thencondition
+
+import org.yuenio.droolSandbox.model.Email;
+import org.yuenio.droolSandbox.model.RoutingRule;
+
+template "tmp2"
+
+rule "@{id}"
+  dialect "mvel"
+  when
+    @{ifcondition};
+  then
+    @{thencondition};
+end
+
+end template

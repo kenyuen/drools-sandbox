@@ -1,0 +1,21 @@
+package rules;
+
+import org.yuenio.droolSandbox.model.Email;
+
+dialect  "mvel"
+
+rule "Team A"
+    when
+        EmailObject : Email(subject == "Team A");
+    then
+        System.out.println("assign to Team A");
+        EmailObject.setTeamAssigned("Team_A");
+end;
+
+rule "Team B"
+    when
+        EmailObject : Email(subject == "Team B");
+    then
+        System.out.println("assign to Team B");
+        EmailObject.setTeamAssigned("Team_B");
+end;
