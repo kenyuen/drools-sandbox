@@ -11,9 +11,8 @@ import org.kie.internal.utils.KieHelper;
 import org.springframework.stereotype.Service;
 import org.yuenio.droolSandbox.config.DroolConfig;
 import org.yuenio.droolSandbox.model.Email;
-import org.yuenio.droolSandbox.model.Order;
-import org.yuenio.droolSandbox.model.Rule;
-import org.yuenio.droolSandbox.repo.DroolRulesRepo;
+import org.yuenio.droolSandbox.model.RoutingRule;
+import org.yuenio.droolSandbox.repo.DroolRoutingRulesRepo;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -23,11 +22,11 @@ import java.util.List;
 public class EmailService {
 
     private final KieContainer kieContainer;
-    private final DroolRulesRepo rulesRepo;
+    private final DroolRoutingRulesRepo routingRulesRepo;
 
-    public EmailService(KieContainer kieContainer, DroolRulesRepo rulesRepo){
+    public EmailService(KieContainer kieContainer, DroolRoutingRulesRepo routingRulesRepo){
         this.kieContainer = kieContainer;
-        this.rulesRepo = rulesRepo;
+        this.routingRulesRepo = routingRulesRepo;
     }
 
     public Email getAssignmentForEmail(Email email) {
@@ -39,8 +38,8 @@ public class EmailService {
     }
 
     public Email getAssignmentForEmailV2(Email email) throws FileNotFoundException{
-        List<Rule> ruleAttributes = new ArrayList<>();
-        rulesRepo.findAll().forEach(ruleAttributes::add);
+        List<RoutingRule> ruleAttributes = new ArrayList<>();
+        routingRulesRepo.findAll().forEach(ruleAttributes::add);
 
         ObjectDataCompiler compiler = new ObjectDataCompiler();
         String generatedDRL = compiler.compile(ruleAttributes, Thread.currentThread().getContextClassLoader().getResourceAsStream(DroolConfig.RULES_TEMPLATE_FILE));
