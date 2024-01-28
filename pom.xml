@@ -15,10 +15,7 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>17</java.version>
-		<drools.version>8.44.0.Final</drools.version>
-		<slf4j-version>1.7.30</slf4j-version>
-		<junit-version>4.13.1</junit-version>
-		<logback-version>1.2.9</logback-version>
+		<drools.version>7.59.0.Final</drools.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -57,11 +54,11 @@
 			<artifactId>drools-decisiontables</artifactId>
 			<version>${drools.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.drools</groupId>
-			<artifactId>drools-ruleunits-engine</artifactId>
-			<version>${drools.version}</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.drools</groupId>-->
+<!--			<artifactId>drools-ruleunits-engine</artifactId>-->
+<!--			<version>${drools.version}</version>-->
+<!--		</dependency>-->
 
 		<!-- JPA dependencies -->
 		<dependency>

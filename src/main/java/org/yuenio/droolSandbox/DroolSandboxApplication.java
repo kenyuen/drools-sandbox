@@ -1,4 +1,4 @@
-package org.yuenio.droolSandboxApplication;
+package org.yuenio.droolSandbox;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
