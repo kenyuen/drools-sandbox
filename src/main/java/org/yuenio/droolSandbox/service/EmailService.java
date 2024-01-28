@@ -1,50 +1,45 @@
 package org.yuenio.droolSandbox.service;
 
-import java.util.List;
-import java.util.ArrayList;
-import org.yuenio.droolSandbox.model.Order;
-import org.yuenio.droolSandbox.model.Rule;
-import org.yuenio.droolSandbox.repo.DroolRulesRepo;
-import org.kie.api.runtime.KieContainer;
-import org.kie.api.runtime.KieSession;
-import org.springframework.stereotype.Service;
-import org.yuenio.droolSandbox.config.DroolConfig;
 import org.drools.template.ObjectDataCompiler;
+import org.kie.api.KieBase;
 import org.kie.api.KieServices;
-import org.kie.api.builder.KieBuilder;
-import org.kie.api.builder.KieFileSystem;
-import org.kie.api.builder.KieModule;
-import org.kie.api.runtime.KieContainer;
-import org.kie.internal.io.ResourceFactory;
-import java.io.FileInputStream;
-import org.kie.internal.utils.KieHelper;
 import org.kie.api.io.Resource;
 import org.kie.api.io.ResourceType;
-import org.kie.api.KieBase;
+import org.kie.api.runtime.KieContainer;
+import org.kie.api.runtime.KieSession;
+import org.kie.internal.utils.KieHelper;
+import org.springframework.stereotype.Service;
+import org.yuenio.droolSandbox.config.DroolConfig;
+import org.yuenio.droolSandbox.model.Email;
+import org.yuenio.droolSandbox.model.RoutingRule;
+import org.yuenio.droolSandbox.repo.DroolRoutingRulesRepo;
+
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
-public class OrderService {
+public class EmailService {
 
     private final KieContainer kieContainer;
-    private final DroolRulesRepo rulesRepo;
+    private final DroolRoutingRulesRepo routingRulesRepo;
 
-    public OrderService(KieContainer kieContainer, DroolRulesRepo rulesRepo){
+    public EmailService(KieContainer kieContainer, DroolRoutingRulesRepo routingRulesRepo){
         this.kieContainer = kieContainer;
-        this.rulesRepo = rulesRepo;
+        this.routingRulesRepo = routingRulesRepo;
     }
 
-    public Order getDiscountForOrder(Order order) {
+    public Email getAssignmentForEmail(Email email) {
         KieSession session = kieContainer.newKieSession();
-        session.insert(order);
+        session.insert(email);
         session.fireAllRules();
         session.dispose();
-        return order;
+        return email;
     }
 
-    public Order getDiscountForOrderV2(Order order) throws FileNotFoundException{
-        List<Rule> ruleAttributes = new ArrayList<>();
-        rulesRepo.findAll().forEach(ruleAttributes::add);
+    public Email getAssignmentForEmailV2(Email email) throws FileNotFoundException{
+        List<RoutingRule> ruleAttributes = new ArrayList<>();
+        routingRulesRepo.findAll().forEach(ruleAttributes::add);
 
         ObjectDataCompiler compiler = new ObjectDataCompiler();
         String generatedDRL = compiler.compile(ruleAttributes, Thread.currentThread().getContextClassLoader().getResourceAsStream(DroolConfig.RULES_TEMPLATE_FILE));
@@ -60,10 +55,10 @@ public class OrderService {
         KieBase kieBase = kieHelper.build();
 
         KieSession kieSession = kieBase.newKieSession();
-        kieSession.insert(order);
+        kieSession.insert(email);
         int numberOfRulesFired = kieSession.fireAllRules();
         kieSession.dispose();
 
-        return order;
+        return email;
     }
 }

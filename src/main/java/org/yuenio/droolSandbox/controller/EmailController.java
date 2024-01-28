@@ -1,21 +1,22 @@
 package org.yuenio.droolSandbox.controller;
 
-import org.yuenio.droolSandbox.model.Order;
-import org.yuenio.droolSandbox.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.yuenio.droolSandbox.model.Email;
+import org.yuenio.droolSandbox.service.EmailService;
+
 import java.io.FileNotFoundException;
 
 @RestController
-public class OrderController {
+public class EmailController {
 
     @Autowired
-    private OrderService orderService;
+    private EmailService emailService;
 
-    @PostMapping("/getDiscount")
-    public Order getDiscount (@RequestBody Order order) throws FileNotFoundException{
-        return orderService.getDiscountForOrderV2(order);
+    @PostMapping("/getAssignment")
+    public Email getAssignment (@RequestBody Email email) throws FileNotFoundException{
+        return emailService.getAssignmentForEmailV2(email);
     }
 }

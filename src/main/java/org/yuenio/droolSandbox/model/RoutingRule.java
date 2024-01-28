@@ -6,10 +6,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "rule_table")
+@Table(name = "routing_rule_table")
 @Getter
 @Setter
-public class Rule {
+public class RoutingRule {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
