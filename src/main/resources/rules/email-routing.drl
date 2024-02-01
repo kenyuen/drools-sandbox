@@ -6,16 +6,16 @@ dialect  "mvel"
 
 rule "Team A"
     when
-        EmailObject : Email(subject == "Team A");
+        EmailObject : Email(subject == "Team AMY");
     then
-        System.out.println("assign to Team A");
-        EmailObject.setTeamAssigned("Team_A");
+        System.out.println("assign to Team AMY");
+        EmailObject.setTeamAssigned("Team_AMY");
 end;
 
 rule "Team B"
     when
-        EmailObject : Email(subject == "Team B");
+        EmailObject : Email(subject == "Team BOB");
     then
-        System.out.println("assign to Team B");
-        EmailObject.setTeamAssigned("Team_B");
+        System.out.println("assign to Team BOB");
+        EmailObject.setTeamAssigned("Team_BOB");
 end;

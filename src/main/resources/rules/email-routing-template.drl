@@ -11,9 +11,9 @@ template "tmp2"
 rule "@{id}"
   dialect "mvel"
   when
-    @{ifcondition};
+    EmailObject : Email(subject == "@{ifcondition}");
   then
-    @{thencondition};
+    EmailObject.setTeamAssigned("@{thencondition}");
 end
 
 end template
