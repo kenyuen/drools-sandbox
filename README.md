@@ -4,6 +4,9 @@ Exploration of drools via [Drools.org](https://docs.drools.org/8.44.0.Final/droo
 Good reference:
 https://jazzteam.org/technical-articles/templates-in-jboss-drools/
 
+Also credit goes to Thameem Ansari who posted this on Medium, where this is modelled against.
+https://medium.com/javarevisited/spring-boot-drools-rule-engine-example-965eea437ee9
+
 
 Note if running this on codespace ensure default to jdk 17 on the container:
 

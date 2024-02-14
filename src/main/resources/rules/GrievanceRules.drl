@@ -1,0 +1,11 @@
+package rules;
+import org.yuenio.droolSandbox.model.GrievanceRule;
+
+dialect  "mvel"
+
+rule "grievancesMap_10"
+when
+$grievances:GrievanceRule($grievances.getCategory().equals("NA"))
+then
+$grievances.setServiceType("Timely Access");
+end

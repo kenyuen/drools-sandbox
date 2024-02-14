@@ -1,0 +1,167 @@
+package org.yuenio.droolSandbox;
+
+import org.droolsassert.DroolsAssert;
+import org.droolsassert.DroolsSession;
+import org.droolsassert.TestRules;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.kie.api.runtime.rule.FactHandle;
+import org.yuenio.droolSandbox.config.DroolConfig;
+import org.yuenio.droolSandbox.model.Email;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+
+@DroolsSession(resources = {
+        "classpath*:" + DroolConfig.RULES_ROUTING_RULES_DRL,
+//        "classpath*:" + DroolConfig.RULES_ASSERT_RULES_DRL,
+        },
+        ignoreRules = { "before", "after" },
+        logResources = true)
+public class DroolsAssertTest {
+
+    @RegisterExtension
+    public DroolsAssert drools = new DroolsAssert();
+
+    @Test
+    @TestRules(expected = "Team A")
+    public void testTeamA() {
+        Email email = new Email();
+        email.setSubject("Test A");
+        email.setTeamAssigned("No One Yet");
+        drools.insertAndFire(email);
+
+        assertEquals("Team A", email.getTeamAssigned());
+    }
+
+    @Test
+    @TestRules(expected = "atomic int rule")
+    public void testInt() {
+        drools.insertAndFire(new AtomicInteger());
+        assertEquals(1, drools.getObject(AtomicInteger.class).get());
+    }
+
+    @Test
+    @TestRules(expected = { "atomic int rule", "atomic long rule" })
+    public void testLong() {
+        drools.insert(new AtomicInteger(), new AtomicLong(), new AtomicLong());
+        drools.fireAllRules();
+        drools.assertFactsCount(3);
+        assertEquals(2, drools.getObjects(AtomicLong.class).size());
+    }
+
+    @Test
+    @TestRules(expectedCount = { "2", "atomic long rule" }, ignore = "* int rule")
+    public void testActivationCount() {
+        drools.insertAndFire(new AtomicInteger(), new AtomicLong(), new AtomicLong());
+        assertEquals(2, drools.getObjects(AtomicLong.class).size());
+    }
+
+    @Test
+    @TestRules(expectedSource = "org/droolsassert/expectedDroolsAssertTest.txt")
+    public void testExpectedSource() {
+        drools.insert(new AtomicInteger(), new AtomicLong(), new AtomicLong());
+        drools.fireAllRules();
+        drools.assertFactsCount(3);
+        assertEquals(2, drools.getObjects(AtomicLong.class).size());
+    }
+
+    @Test
+    @TestRules(expectedCountSource = "**/expectedCountDroolsAssertTest.txt", ignoreSource = "**/ignoreDroolsAssertTest.txt")
+    public void testExpectedCountSource() {
+        drools.insert(new AtomicInteger(), new AtomicLong(), new AtomicLong());
+        drools.fireAllRules();
+        drools.assertFactsCount(3);
+        assertEquals(2, drools.getObjects(AtomicLong.class).size());
+    }
+
+    @Test
+    @TestRules(expected = {})
+    public void testNoRulesWereActivated() {
+        drools.insertAndFire("string");
+        drools.assertFactsCount(1);
+        assertEquals("string", drools.getObject(String.class));
+    }
+
+    @Test
+    public void testNoObjectFound() {
+        assertThrows(AssertionError.class, () -> drools.getObject(BigDecimal.class));
+    }
+
+    @Test
+    @TestRules(expected = "atomic long rule")
+    public void testNoUniqueObjectFound() {
+        drools.insertAndFire(new AtomicLong(), new AtomicLong());
+        assertThrows(AssertionError.class, () -> drools.getObject(AtomicLong.class));
+    }
+
+    @Test
+    public void testPrintFactsSkippedWhenHistoryIsDisabled() {
+        drools.printFacts();
+    }
+
+    @Test
+    public void testGetFactHandle() {
+        drools.insertAndFire(new AtomicInteger());
+        assertNotNull(drools.getFactHandle(AtomicInteger.class));
+
+        drools.insertAndFireAt("entrypoint", new AtomicLong());
+        assertNotNull(drools.getFactHandle(AtomicLong.class));
+
+        drools.insertAndFire(new AtomicLong());
+        assertEquals(2, drools.getFactHandles(AtomicLong.class).size());
+        assertEquals(2, drools.getFactHandles(AtomicLong.class, (l) -> l.get() > 0).size());
+        assertEquals(2, drools.getFactHandles((Object o) -> o instanceof AtomicLong).size());
+    }
+
+    @Test
+    public void testUpdate() {
+        AtomicInteger atomicInteger = new AtomicInteger(8);
+        drools.insertAndFire(atomicInteger);
+        drools.assertActivated("atomic int rule");
+
+        atomicInteger.incrementAndGet();
+        drools.advanceTime(1, SECONDS);
+        drools.assertActivated();
+        drools.update(atomicInteger);
+        drools.advanceTime(1, SECONDS);
+        drools.assertActivated("atomic int rule", "increment 10");
+
+        drools.update(drools.getFactHandle(atomicInteger));
+        drools.advanceTime(1, SECONDS);
+        drools.assertActivated("atomic int rule");
+    }
+
+    @Test
+    public void testDelete() {
+        AtomicInteger atomicInteger = new AtomicInteger();
+        drools.insertAndFire(atomicInteger);
+        assertEquals(1, drools.getFactHandles(AtomicInteger.class).size());
+        drools.delete(atomicInteger);
+        assertEquals(0, drools.getFactHandles(AtomicInteger.class).size());
+
+        List<FactHandle> handles = drools.insertAndFire(new AtomicInteger());
+        assertEquals(1, drools.getFactHandles(AtomicInteger.class).size());
+        drools.delete(handles);
+        assertEquals(0, drools.getFactHandles(AtomicInteger.class).size());
+
+        handles = drools.insertAndFire(new AtomicInteger());
+        assertEquals(1, drools.getFactHandles(AtomicInteger.class).size());
+        drools.delete(handles.get(0));
+        assertEquals(0, drools.getFactHandles(AtomicInteger.class).size());
+
+        AtomicLong atomicLong = new AtomicLong();
+        drools.insertAndFireAt("entrypoint", atomicLong);
+        assertEquals(1, drools.getFactHandles(AtomicLong.class).size());
+        drools.delete(atomicLong);
+        assertEquals(0, drools.getFactHandles(AtomicLong.class).size());
+    }
+}

@@ -14,6 +14,7 @@ public class DroolConfig {
 
     public static final String RULES_ROUTING_RULES_DRL = "rules/email-routing.drl";
     public static final String RULES_TEMPLATE_FILE = "rules/email-routing-template.drl";
+    public static final String RULES_ASSERT_RULES_DRL = "rules/assertRules.drl";
     private static final KieServices kieServices = KieServices.Factory.get();
 
     @Bean

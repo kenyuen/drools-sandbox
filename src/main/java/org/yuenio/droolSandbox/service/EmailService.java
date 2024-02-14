@@ -38,8 +38,7 @@ public class EmailService {
     }
 
     public Email getAssignmentForEmailV2(Email email) throws FileNotFoundException{
-        List<RoutingRule> ruleAttributes = new ArrayList<>();
-        routingRulesRepo.findAll().forEach(ruleAttributes::add);
+        List<RoutingRule> ruleAttributes = new ArrayList<>(routingRulesRepo.findAll());
 
         ObjectDataCompiler compiler = new ObjectDataCompiler();
         String generatedDRL = compiler.compile(ruleAttributes, Thread.currentThread().getContextClassLoader().getResourceAsStream(DroolConfig.RULES_TEMPLATE_FILE));
